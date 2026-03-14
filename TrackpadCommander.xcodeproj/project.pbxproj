@@ -1,0 +1,506 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BA0000000000000000000001 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000001 /* AppState.swift */; };
+		BA0000000000000000000002 /* TrackpadCommanderApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000002 /* TrackpadCommanderApp.swift */; };
+		BA0000000000000000000003 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000003 /* MenuBarController.swift */; };
+		BA0000000000000000000004 /* BindingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000004 /* BindingsView.swift */; };
+		BA0000000000000000000005 /* ConflictsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000005 /* ConflictsView.swift */; };
+		BA0000000000000000000006 /* PermissionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000006 /* PermissionsView.swift */; };
+		BA0000000000000000000007 /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* LogsView.swift */; };
+		BA0000000000000000000008 /* GestureID.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000008 /* GestureID.swift */; };
+		BA0000000000000000000009 /* ActionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* ActionSpec.swift */; };
+		BA000000000000000000000A /* Binding.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000A /* Binding.swift */; };
+		BA000000000000000000000B /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000B /* AppConfig.swift */; };
+		BA000000000000000000000C /* MultitouchBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000C /* MultitouchBridge.swift */; };
+		BA000000000000000000000D /* TouchFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000D /* TouchFrame.swift */; };
+		BA000000000000000000000E /* GestureRecognizerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000E /* GestureRecognizerEngine.swift */; };
+		BA000000000000000000000F /* GestureThresholds.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000F /* GestureThresholds.swift */; };
+		BA0000000000000000000010 /* ActionRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000010 /* ActionRunner.swift */; };
+		BA0000000000000000000011 /* ExecutionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000011 /* ExecutionResult.swift */; };
+		BA0000000000000000000012 /* ConflictManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000012 /* ConflictManager.swift */; };
+		BA0000000000000000000013 /* ConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000013 /* ConfigStore.swift */; };
+		BA0000000000000000000014 /* LogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000014 /* LogStore.swift */; };
+		BA0000000000000000000015 /* TrackpadCommanderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000017 /* TrackpadCommanderTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CA0000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0000000000000000000010;
+			remoteInfo = TrackpadCommander;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		FA0000000000000000000001 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		FA0000000000000000000002 /* TrackpadCommanderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackpadCommanderApp.swift; sourceTree = "<group>"; };
+		FA0000000000000000000003 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
+		FA0000000000000000000004 /* BindingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BindingsView.swift; sourceTree = "<group>"; };
+		FA0000000000000000000005 /* ConflictsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictsView.swift; sourceTree = "<group>"; };
+		FA0000000000000000000006 /* PermissionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsView.swift; sourceTree = "<group>"; };
+		FA0000000000000000000007 /* LogsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsView.swift; sourceTree = "<group>"; };
+		FA0000000000000000000008 /* GestureID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureID.swift; sourceTree = "<group>"; };
+		FA0000000000000000000009 /* ActionSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionSpec.swift; sourceTree = "<group>"; };
+		FA000000000000000000000A /* Binding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Binding.swift; sourceTree = "<group>"; };
+		FA000000000000000000000B /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
+		FA000000000000000000000C /* MultitouchBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultitouchBridge.swift; sourceTree = "<group>"; };
+		FA000000000000000000000D /* TouchFrame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchFrame.swift; sourceTree = "<group>"; };
+		FA000000000000000000000E /* GestureRecognizerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureRecognizerEngine.swift; sourceTree = "<group>"; };
+		FA000000000000000000000F /* GestureThresholds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureThresholds.swift; sourceTree = "<group>"; };
+		FA0000000000000000000010 /* ActionRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionRunner.swift; sourceTree = "<group>"; };
+		FA0000000000000000000011 /* ExecutionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutionResult.swift; sourceTree = "<group>"; };
+		FA0000000000000000000012 /* ConflictManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictManager.swift; sourceTree = "<group>"; };
+		FA0000000000000000000013 /* ConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigStore.swift; sourceTree = "<group>"; };
+		FA0000000000000000000014 /* LogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogStore.swift; sourceTree = "<group>"; };
+		FA0000000000000000000015 /* TrackpadCommander.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrackpadCommander.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA0000000000000000000016 /* TrackpadCommanderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackpadCommanderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA0000000000000000000017 /* TrackpadCommanderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackpadCommanderTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DA0000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA0000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AA0000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000004 /* TrackpadCommander */,
+				AA000000000000000000000D /* TrackpadCommanderTests */,
+				AA0000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000015 /* TrackpadCommander.app */,
+				FA0000000000000000000016 /* TrackpadCommanderTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000004 /* TrackpadCommander */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000005 /* App */,
+				AA0000000000000000000006 /* UI */,
+				AA0000000000000000000007 /* Domain */,
+				AA0000000000000000000008 /* GestureCapture */,
+				AA0000000000000000000009 /* GestureRecognition */,
+				AA000000000000000000000A /* Execution */,
+				AA000000000000000000000B /* Conflicts */,
+				AA000000000000000000000C /* Persistence */,
+			);
+			path = TrackpadCommander;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000005 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000001 /* AppState.swift */,
+				FA0000000000000000000002 /* TrackpadCommanderApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000006 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000000E /* MenuBar */,
+				AA000000000000000000000F /* Settings */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000007 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000008 /* GestureID.swift */,
+				FA0000000000000000000009 /* ActionSpec.swift */,
+				FA000000000000000000000A /* Binding.swift */,
+				FA000000000000000000000B /* AppConfig.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000008 /* GestureCapture */ = {
+			isa = PBXGroup;
+			children = (
+				FA000000000000000000000C /* MultitouchBridge.swift */,
+				FA000000000000000000000D /* TouchFrame.swift */,
+			);
+			path = GestureCapture;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000009 /* GestureRecognition */ = {
+			isa = PBXGroup;
+			children = (
+				FA000000000000000000000E /* GestureRecognizerEngine.swift */,
+				FA000000000000000000000F /* GestureThresholds.swift */,
+			);
+			path = GestureRecognition;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000000A /* Execution */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000010 /* ActionRunner.swift */,
+				FA0000000000000000000011 /* ExecutionResult.swift */,
+			);
+			path = Execution;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000000B /* Conflicts */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000012 /* ConflictManager.swift */,
+			);
+			path = Conflicts;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000000C /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000013 /* ConfigStore.swift */,
+				FA0000000000000000000014 /* LogStore.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000000D /* TrackpadCommanderTests */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000017 /* TrackpadCommanderTests.swift */,
+			);
+			path = TrackpadCommanderTests;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000000E /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000003 /* MenuBarController.swift */,
+			);
+			path = MenuBar;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000000F /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000004 /* BindingsView.swift */,
+				FA0000000000000000000005 /* ConflictsView.swift */,
+				FA0000000000000000000006 /* PermissionsView.swift */,
+				FA0000000000000000000007 /* LogsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA0000000000000000000010 /* TrackpadCommander */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EA0000000000000000000002 /* Build configuration list for PBXNativeTarget "TrackpadCommander" */;
+			buildPhases = (
+				DA0000000000000000000003 /* Sources */,
+				DA0000000000000000000001 /* Frameworks */,
+				DA0000000000000000000004 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TrackpadCommander;
+			productName = TrackpadCommander;
+			productReference = FA0000000000000000000015 /* TrackpadCommander.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AA0000000000000000000011 /* TrackpadCommanderTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EA0000000000000000000003 /* Build configuration list for PBXNativeTarget "TrackpadCommanderTests" */;
+			buildPhases = (
+				DA0000000000000000000005 /* Sources */,
+				DA0000000000000000000002 /* Frameworks */,
+				DA0000000000000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DA0000000000000000000007 /* PBXTargetDependency */,
+			);
+			name = TrackpadCommanderTests;
+			productName = TrackpadCommanderTests;
+			productReference = FA0000000000000000000016 /* TrackpadCommanderTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AA0000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					AA0000000000000000000010 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					AA0000000000000000000011 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = AA0000000000000000000010;
+					};
+				};
+			};
+			buildConfigurationList = EA0000000000000000000001 /* Build configuration list for PBXProject "TrackpadCommander" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AA0000000000000000000002;
+			productRefGroup = AA0000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AA0000000000000000000010 /* TrackpadCommander */,
+				AA0000000000000000000011 /* TrackpadCommanderTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DA0000000000000000000004 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA0000000000000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DA0000000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BA0000000000000000000001 /* AppState.swift in Sources */,
+				BA0000000000000000000002 /* TrackpadCommanderApp.swift in Sources */,
+				BA0000000000000000000003 /* MenuBarController.swift in Sources */,
+				BA0000000000000000000004 /* BindingsView.swift in Sources */,
+				BA0000000000000000000005 /* ConflictsView.swift in Sources */,
+				BA0000000000000000000006 /* PermissionsView.swift in Sources */,
+				BA0000000000000000000007 /* LogsView.swift in Sources */,
+				BA0000000000000000000008 /* GestureID.swift in Sources */,
+				BA0000000000000000000009 /* ActionSpec.swift in Sources */,
+				BA000000000000000000000A /* Binding.swift in Sources */,
+				BA000000000000000000000B /* AppConfig.swift in Sources */,
+				BA000000000000000000000C /* MultitouchBridge.swift in Sources */,
+				BA000000000000000000000D /* TouchFrame.swift in Sources */,
+				BA000000000000000000000E /* GestureRecognizerEngine.swift in Sources */,
+				BA000000000000000000000F /* GestureThresholds.swift in Sources */,
+				BA0000000000000000000010 /* ActionRunner.swift in Sources */,
+				BA0000000000000000000011 /* ExecutionResult.swift in Sources */,
+				BA0000000000000000000012 /* ConflictManager.swift in Sources */,
+				BA0000000000000000000013 /* ConfigStore.swift in Sources */,
+				BA0000000000000000000014 /* LogStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA0000000000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BA0000000000000000000015 /* TrackpadCommanderTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DA0000000000000000000007 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0000000000000000000010 /* TrackpadCommander */;
+			targetProxy = CA0000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		EA0000000000000000000004 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		EA0000000000000000000005 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		EA0000000000000000000006 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = local.ryan.TrackpadCommander;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		EA0000000000000000000007 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = local.ryan.TrackpadCommander;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		EA0000000000000000000008 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = local.ryan.TrackpadCommanderTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TrackpadCommander.app/Contents/MacOS/TrackpadCommander";
+			};
+			name = Debug;
+		};
+		EA0000000000000000000009 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = local.ryan.TrackpadCommanderTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TrackpadCommander.app/Contents/MacOS/TrackpadCommander";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EA0000000000000000000001 /* Build configuration list for PBXProject "TrackpadCommander" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EA0000000000000000000004 /* Debug */,
+				EA0000000000000000000005 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EA0000000000000000000002 /* Build configuration list for PBXNativeTarget "TrackpadCommander" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EA0000000000000000000006 /* Debug */,
+				EA0000000000000000000007 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EA0000000000000000000003 /* Build configuration list for PBXNativeTarget "TrackpadCommanderTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EA0000000000000000000008 /* Debug */,
+				EA0000000000000000000009 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AA0000000000000000000001 /* Project object */;
+}
