@@ -28,6 +28,7 @@
 		BA0000000000000000000013 /* ConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000013 /* ConfigStore.swift */; };
 		BA0000000000000000000014 /* LogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000014 /* LogStore.swift */; };
 		BA0000000000000000000015 /* TrackpadCommanderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000017 /* TrackpadCommanderTests.swift */; };
+		BA0000000000000000000016 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000018 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,7 @@
 		FA0000000000000000000015 /* TrackpadCommander.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrackpadCommander.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA0000000000000000000016 /* TrackpadCommanderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackpadCommanderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA0000000000000000000017 /* TrackpadCommanderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackpadCommanderTests.swift; sourceTree = "<group>"; };
+		FA0000000000000000000018 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000005 /* App */,
+				FA0000000000000000000018 /* Assets.xcassets */,
 				AA0000000000000000000006 /* UI */,
 				AA0000000000000000000007 /* Domain */,
 				AA0000000000000000000008 /* GestureCapture */,
@@ -298,6 +301,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA0000000000000000000016 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -442,6 +446,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -473,6 +478,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
