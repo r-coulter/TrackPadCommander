@@ -76,7 +76,7 @@ private struct BindingRow: View {
                     .font(.headline)
                 Text(binding.action.kind.displayName)
                     .font(.subheadline.weight(.medium))
-                Text(binding.action.payload.isEmpty ? "No payload set" : binding.action.payload)
+                Text(binding.action.payloadSummary)
                     .lineLimit(2)
                     .foregroundStyle(.secondary)
                     .font(.footnote.monospaced())
@@ -171,6 +171,9 @@ private struct BindingEditorView: View {
                     TextEditor(text: $draft.payload)
                         .font(.body.monospaced())
                         .frame(minHeight: 160)
+                } else if draft.actionKind == .middleClick {
+                    Text("No payload required. This action posts a middle click at the current cursor location.")
+                        .foregroundStyle(.secondary)
                 } else {
                     TextField(payloadLabel, text: $draft.payload)
                 }
@@ -196,6 +199,18 @@ private struct BindingEditorView: View {
         case .openPath: "File or folder path"
         case .openURL: "https://example.com"
         case .appleScript: "AppleScript source"
+        case .middleClick: "No payload required"
+        }
+    }
+}
+
+private extension ActionSpec {
+    var payloadSummary: String {
+        switch kind {
+        case .middleClick:
+            return "No payload required"
+        default:
+            return payload.isEmpty ? "No payload set" : payload
         }
     }
 }

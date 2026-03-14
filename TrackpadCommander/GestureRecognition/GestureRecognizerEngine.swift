@@ -32,51 +32,78 @@ struct GestureEvent: Hashable, Sendable, Identifiable {
 }
 
 final class GestureRecognizerEngine {
+    var threeFingerTapSensitivity = 1.0
+
     private struct DeviceState {
         var startTimestamp: TimeInterval
         var lastTimestamp: TimeInterval
-        var initialContacts: [Int: CGPoint]
-        var lastContacts: [Int: CGPoint]
-        var maxFingerCount: Int
-        var maxTravel: CGFloat
+        var fingerCount: Int
         var initialCentroid: CGPoint
         var lastCentroid: CGPoint
+        var maxCentroidTravel: CGFloat
         var initialSpread: CGFloat?
         var lastSpread: CGFloat?
+        var stabilizationDeadline: TimeInterval
     }
 
     private var deviceStates: [String: DeviceState] = [:]
     private var lastEmissions: [String: Date] = [:]
 
+    private var normalizedThreeFingerTapSensitivity: Double {
+        min(max(threeFingerTapSensitivity, 0.75), 1.5)
+    }
+
     func process(frame: TouchFrame) -> GestureEvent? {
         if frame.contacts.isEmpty {
             defer { deviceStates.removeValue(forKey: frame.deviceID) }
             guard let state = deviceStates[frame.deviceID] else { return nil }
-            return finalize(deviceID: frame.deviceID, state: state, finalTimestamp: frame.timestamp)
+            return finalize(deviceID: frame.deviceID, state: state, finalTimestamp: state.lastTimestamp)
         }
 
         let centroid = Self.centroid(for: frame.contacts)
         let spread = Self.spread(for: frame.contacts, centroid: centroid)
 
         if var state = deviceStates[frame.deviceID] {
+            if frame.contacts.count > state.fingerCount {
+                state = DeviceState(
+                    startTimestamp: frame.timestamp,
+                    lastTimestamp: frame.timestamp,
+                    fingerCount: frame.contacts.count,
+                    initialCentroid: centroid,
+                    lastCentroid: centroid,
+                    maxCentroidTravel: 0,
+                    initialSpread: spread,
+                    lastSpread: spread,
+                    stabilizationDeadline: frame.timestamp + (GestureThresholds.landingStabilizationMs / 1_000)
+                )
+                deviceStates[frame.deviceID] = state
+                return nil
+            }
+
+            if frame.timestamp <= state.stabilizationDeadline {
+                state.startTimestamp = frame.timestamp
+                state.lastTimestamp = frame.timestamp
+                state.initialCentroid = centroid
+                state.lastCentroid = centroid
+                state.maxCentroidTravel = 0
+                state.initialSpread = spread
+                state.lastSpread = spread
+                deviceStates[frame.deviceID] = state
+                return nil
+            }
+
+            if frame.contacts.count < state.fingerCount {
+                defer { deviceStates.removeValue(forKey: frame.deviceID) }
+                return finalize(deviceID: frame.deviceID, state: state, finalTimestamp: state.lastTimestamp)
+            }
+
             state.lastTimestamp = frame.timestamp
             state.lastCentroid = centroid
             state.lastSpread = spread
-            state.maxFingerCount = max(state.maxFingerCount, frame.contacts.count)
-
-            for contact in frame.contacts {
-                if state.initialContacts[contact.identifier] == nil {
-                    state.initialContacts[contact.identifier] = contact.normalizedPosition
-                }
-
-                state.lastContacts[contact.identifier] = contact.normalizedPosition
-                if let start = state.initialContacts[contact.identifier] {
-                    state.maxTravel = max(
-                        state.maxTravel,
-                        Self.distance(from: start, to: contact.normalizedPosition)
-                    )
-                }
-            }
+            state.maxCentroidTravel = max(
+                state.maxCentroidTravel,
+                Self.distance(from: state.initialCentroid, to: centroid)
+            )
 
             deviceStates[frame.deviceID] = state
             return nil
@@ -84,14 +111,13 @@ final class GestureRecognizerEngine {
             deviceStates[frame.deviceID] = DeviceState(
                 startTimestamp: frame.timestamp,
                 lastTimestamp: frame.timestamp,
-                initialContacts: Dictionary(uniqueKeysWithValues: frame.contacts.map { ($0.identifier, $0.normalizedPosition) }),
-                lastContacts: Dictionary(uniqueKeysWithValues: frame.contacts.map { ($0.identifier, $0.normalizedPosition) }),
-                maxFingerCount: frame.contacts.count,
-                maxTravel: 0,
+                fingerCount: frame.contacts.count,
                 initialCentroid: centroid,
                 lastCentroid: centroid,
+                maxCentroidTravel: 0,
                 initialSpread: spread,
-                lastSpread: spread
+                lastSpread: spread,
+                stabilizationDeadline: frame.timestamp + (GestureThresholds.landingStabilizationMs / 1_000)
             )
             return nil
         }
@@ -104,7 +130,7 @@ final class GestureRecognizerEngine {
         let displacement = hypot(deltaX, deltaY)
         let velocity = displacement / CGFloat(durationMs / 1_000)
         let metrics = RecognitionMetrics(
-            fingerCount: state.maxFingerCount,
+            fingerCount: state.fingerCount,
             durationMs: durationMs,
             distance: displacement,
             velocity: velocity,
@@ -113,6 +139,10 @@ final class GestureRecognizerEngine {
 
         if let pinchEvent = classifyPinch(deviceID: deviceID, state: state, metrics: metrics) {
             return pinchEvent
+        }
+
+        if let directTapEvent = classifyDirectThreeFingerTap(deviceID: deviceID, state: state, metrics: metrics) {
+            return directTapEvent
         }
 
         if let swipeEvent = classifySwipe(deviceID: deviceID, state: state, metrics: metrics, deltaX: deltaX, deltaY: deltaY) {
@@ -126,14 +156,48 @@ final class GestureRecognizerEngine {
         return nil
     }
 
+    private func classifyDirectThreeFingerTap(
+        deviceID: String,
+        state: DeviceState,
+        metrics: RecognitionMetrics
+    ) -> GestureEvent? {
+        let durationLimit = GestureThresholds.threeFingerTapDirectMaxDurationMs * normalizedThreeFingerTapSensitivity
+        let travelLimit = GestureThresholds.threeFingerTapDirectMaxTravel * normalizedThreeFingerTapSensitivity
+
+        guard state.fingerCount == 3,
+              metrics.durationMs <= durationLimit,
+              state.maxCentroidTravel <= travelLimit else {
+            return nil
+        }
+
+        return emit(
+            gesture: .threeFingerTap,
+            deviceID: deviceID,
+            metrics: RecognitionMetrics(
+                fingerCount: 3,
+                durationMs: metrics.durationMs,
+                distance: state.maxCentroidTravel,
+                velocity: metrics.velocity,
+                confidence: 0.8
+            )
+        )
+    }
+
     private func classifyTap(deviceID: String, state: DeviceState, metrics: RecognitionMetrics) -> GestureEvent? {
-        guard metrics.durationMs <= GestureThresholds.tapMaxDurationMs,
-              state.maxTravel <= GestureThresholds.tapMaxTravel else {
+        let durationLimit = state.fingerCount == 3
+            ? GestureThresholds.tapMaxDurationMs * normalizedThreeFingerTapSensitivity
+            : GestureThresholds.tapMaxDurationMs
+        let travelLimit = state.fingerCount == 3
+            ? GestureThresholds.tapMaxTravel * normalizedThreeFingerTapSensitivity
+            : GestureThresholds.tapMaxTravel
+
+        guard metrics.durationMs <= durationLimit,
+              state.maxCentroidTravel <= travelLimit else {
             return nil
         }
 
         let gesture: GestureID?
-        switch state.maxFingerCount {
+        switch state.fingerCount {
         case 2: gesture = .twoFingerTap
         case 3: gesture = .threeFingerTap
         case 4: gesture = .fourFingerTap
@@ -147,7 +211,7 @@ final class GestureRecognizerEngine {
             metrics: RecognitionMetrics(
                 fingerCount: metrics.fingerCount,
                 durationMs: metrics.durationMs,
-                distance: state.maxTravel,
+                distance: state.maxCentroidTravel,
                 velocity: metrics.velocity,
                 confidence: 0.95
             )
@@ -161,7 +225,7 @@ final class GestureRecognizerEngine {
         deltaX: CGFloat,
         deltaY: CGFloat
     ) -> GestureEvent? {
-        guard state.maxFingerCount == 3 || state.maxFingerCount == 4 else { return nil }
+        guard state.fingerCount == 3 || state.fingerCount == 4 else { return nil }
 
         let primaryIsHorizontal = abs(deltaX) >= abs(deltaY)
         let primary = primaryIsHorizontal ? abs(deltaX) : abs(deltaY)
@@ -173,7 +237,7 @@ final class GestureRecognizerEngine {
         }
 
         let gesture: GestureID
-        if state.maxFingerCount == 3 {
+        if state.fingerCount == 3 {
             if primaryIsHorizontal {
                 gesture = deltaX < 0 ? .threeFingerSwipeLeft : .threeFingerSwipeRight
             } else {
@@ -201,7 +265,7 @@ final class GestureRecognizerEngine {
     }
 
     private func classifyPinch(deviceID: String, state: DeviceState, metrics: RecognitionMetrics) -> GestureEvent? {
-        guard state.maxFingerCount == 2,
+        guard state.fingerCount == 2,
               let initialSpread = state.initialSpread,
               let lastSpread = state.lastSpread,
               initialSpread > 0 else {

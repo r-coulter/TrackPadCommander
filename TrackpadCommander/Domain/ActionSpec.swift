@@ -6,6 +6,7 @@ enum ActionKind: String, Codable, CaseIterable, Identifiable, Hashable {
     case openPath
     case openURL
     case appleScript
+    case middleClick
 
     var id: String { rawValue }
 
@@ -16,6 +17,7 @@ enum ActionKind: String, Codable, CaseIterable, Identifiable, Hashable {
         case .openPath: "Open File or Folder"
         case .openURL: "Open URL"
         case .appleScript: "AppleScript"
+        case .middleClick: "Middle Click"
         }
     }
 }

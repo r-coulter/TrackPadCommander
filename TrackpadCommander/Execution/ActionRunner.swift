@@ -1,4 +1,5 @@
 import AppKit
+import ApplicationServices
 import Foundation
 
 actor ActionRunner {
@@ -16,6 +17,8 @@ actor ActionRunner {
             return await runOpenURL(action: action, startedAt: startedAt)
         case .appleScript:
             return await runAppleScript(action: action, startedAt: startedAt)
+        case .middleClick:
+            return await runMiddleClick(startedAt: startedAt)
         }
     }
 
@@ -156,6 +159,85 @@ actor ActionRunner {
                 errorDescription: errorInfo?["NSAppleScriptErrorMessage"] as? String
             )
         }
+    }
+
+    private func runMiddleClick(startedAt: Date) async -> ExecutionResult {
+        guard AXIsProcessTrusted() else {
+            return ExecutionResult(
+                startedAt: startedAt,
+                finishedAt: Date(),
+                exitStatus: 1,
+                errorDescription: "Accessibility permission is required to post a middle click."
+            )
+        }
+
+        return await MainActor.run {
+            // Allow the trackpad gesture state to settle before injecting a mouse event.
+            Thread.sleep(forTimeInterval: 0.035)
+
+            guard let source = CGEventSource(stateID: .hidSystemState) else {
+                return ExecutionResult(
+                    startedAt: startedAt,
+                    finishedAt: Date(),
+                    exitStatus: 1,
+                    errorDescription: "Could not create an event source for middle click."
+                )
+            }
+
+            let desktopMaxY = NSScreen.screens.map(\.frame.maxY).max() ?? 0
+            let location = Self.quartzMouseLocation(from: NSEvent.mouseLocation, desktopMaxY: desktopMaxY)
+            guard let down = CGEvent(
+                mouseEventSource: source,
+                mouseType: .leftMouseDown,
+                mouseCursorPosition: location,
+                mouseButton: .left
+            ) else {
+                return ExecutionResult(
+                    startedAt: startedAt,
+                    finishedAt: Date(),
+                    exitStatus: 1,
+                    errorDescription: "Could not create a middle-click down event."
+                )
+            }
+
+            down.type = .otherMouseDown
+            down.setIntegerValueField(.mouseEventButtonNumber, value: 2)
+            down.setIntegerValueField(.mouseEventClickState, value: 1)
+            down.setDoubleValueField(.mouseEventPressure, value: 1)
+            down.post(tap: .cghidEventTap)
+
+            Thread.sleep(forTimeInterval: 0.012)
+
+            guard let up = CGEvent(
+                mouseEventSource: source,
+                mouseType: .leftMouseUp,
+                mouseCursorPosition: location,
+                mouseButton: .left
+            ) else {
+                return ExecutionResult(
+                    startedAt: startedAt,
+                    finishedAt: Date(),
+                    exitStatus: 1,
+                    errorDescription: "Could not create a middle-click up event."
+                )
+            }
+
+            up.type = .otherMouseUp
+            up.setIntegerValueField(.mouseEventButtonNumber, value: 2)
+            up.setIntegerValueField(.mouseEventClickState, value: 1)
+            up.setDoubleValueField(.mouseEventPressure, value: 0)
+            up.post(tap: .cghidEventTap)
+
+            return ExecutionResult(
+                startedAt: startedAt,
+                finishedAt: Date(),
+                exitStatus: 0
+            )
+        }
+    }
+
+    nonisolated static func quartzMouseLocation(from appKitLocation: CGPoint, desktopMaxY: CGFloat) -> CGPoint {
+        CGPoint(x: appKitLocation.x, y: desktopMaxY - appKitLocation.y)
     }
 
     private static func tailString(from data: Data, limit: Int = 4_000) -> String {

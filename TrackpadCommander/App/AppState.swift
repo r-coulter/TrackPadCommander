@@ -1,4 +1,5 @@
 @preconcurrency import AppKit
+@preconcurrency import ApplicationServices
 import Foundation
 import ServiceManagement
 import UserNotifications
@@ -11,6 +12,7 @@ final class AppState: ObservableObject {
     @Published var lastGestureEvent: GestureEvent?
     @Published var statusMessage: String?
     @Published var recognizerAvailable = false
+    @Published var accessibilityAccessGranted = AXIsProcessTrusted()
 
     private let configStore: ConfigStore
     private let logStore: LogStore
@@ -20,8 +22,11 @@ final class AppState: ObservableObject {
     private let conflictManager: ConflictManager
 
     private var lastExecutionByBinding: [UUID: Date] = [:]
+    private var lastRawGestureByDevice: [String: GestureEvent] = [:]
     private var reconnectTimer: Timer?
     private var wakeObserver: NSObjectProtocol?
+    private var didActivateObserver: NSObjectProtocol?
+    private var hasPromptedForAccessibilityThisSession = false
 
     init(
         configStore: ConfigStore = ConfigStore(),
@@ -50,6 +55,9 @@ final class AppState: ObservableObject {
         }
 
         recognizerAvailable = bridge.isAvailable
+        recognizer.threeFingerTapSensitivity = config.threeFingerTapSensitivity
+        refreshAccessibilityPermissionStatus()
+        promptForAccessibilityIfNeeded()
         applyLaunchAtLogin()
         syncConflicts()
         startGestureCapture()
@@ -118,6 +126,28 @@ final class AppState: ObservableObject {
         persistConfiguration()
     }
 
+    func updateThreeFingerTapSensitivity(_ value: Double) {
+        let clamped = min(max(value, 0.75), 1.5)
+        config.threeFingerTapSensitivity = clamped
+        recognizer.threeFingerTapSensitivity = clamped
+        persistConfiguration()
+    }
+
+    func updateGestureDiagnosticsEnabled(_ enabled: Bool) {
+        config.gestureDiagnosticsEnabled = enabled
+        persistConfiguration()
+    }
+
+    func requestAccessibilityPermission() {
+        if accessibilityAccessGranted {
+            refreshAccessibilityPermissionStatus()
+            statusMessage = "Accessibility access is already granted."
+        } else {
+            hasPromptedForAccessibilityThisSession = true
+            refreshAccessibilityPermissionStatus(prompt: true)
+        }
+    }
+
     func restoreAllConflicts() {
         var restores = config.storedConflictRestores
         let result = conflictManager.restoreAll(storedRestores: &restores)
@@ -161,9 +191,20 @@ final class AppState: ObservableObject {
             }
         }
 
+        didActivateObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.refreshAccessibilityPermissionStatus()
+            }
+        }
+
         reconnectTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.bridge.reconnectDevices()
+                self?.refreshAccessibilityPermissionStatus()
             }
         }
     }
@@ -182,16 +223,44 @@ final class AppState: ObservableObject {
     }
 
     private func handleTouchFrame(_ frame: TouchFrame) {
-        guard let event = recognizer.process(frame: frame) else { return }
+        guard let rawEvent = recognizer.process(frame: frame) else { return }
+        let enabledGestures = Set(config.bindings.lazy.filter(\.isEnabled).map(\.gesture))
+        let previousRawEvent = lastRawGestureByDevice[rawEvent.deviceID]
+        lastRawGestureByDevice[rawEvent.deviceID] = rawEvent
+
+        let event = Self.resolveGestureFallback(
+            rawEvent: rawEvent,
+            previousEvent: previousRawEvent,
+            enabledGestures: enabledGestures,
+            tapSensitivity: config.threeFingerTapSensitivity
+        )
         lastGestureEvent = event
+        let recognitionSource = Self.recognitionSource(rawEvent: rawEvent, resolvedEvent: event)
+
+        if event.gesture != rawEvent.gesture, config.gestureDiagnosticsEnabled {
+            appendSystemLog(
+                title: "Gesture fallback applied",
+                details: "Reinterpreted \(rawEvent.gesture.displayName) as \(event.gesture.displayName) after a short three-finger gesture sequence."
+            )
+        }
 
         appendLog(LogEntry(
             kind: .gesture,
             title: event.gesture.displayName,
-            details: "Device \(event.deviceID), duration \(Int(event.metrics.durationMs)) ms, confidence \(String(format: "%.2f", event.metrics.confidence))."
+            details: gestureLogDetails(for: event, recognitionSource: recognitionSource)
         ))
 
         guard let binding = config.bindings.first(where: { $0.gesture == event.gesture && $0.isEnabled }) else {
+            return
+        }
+
+        if binding.action.kind == .middleClick && !accessibilityAccessGranted {
+            refreshAccessibilityPermissionStatus()
+            appendLog(LogEntry(
+                kind: .system,
+                title: "Middle click blocked",
+                details: "Three-finger tap was recognized, but Accessibility access is still required to post a middle click. Use the Permissions tab to request access."
+            ))
             return
         }
 
@@ -204,7 +273,7 @@ final class AppState: ObservableObject {
 
         Task {
             let result = await actionRunner.run(action: binding.action)
-            handleExecutionResult(result, for: binding, source: event.gesture.displayName)
+            handleExecutionResult(result, for: binding, source: "\(event.gesture.displayName) [\(recognitionSource)]")
         }
     }
 
@@ -261,6 +330,7 @@ final class AppState: ObservableObject {
 
     private func persistConfigurationAndRuntime() {
         syncConflicts()
+        promptForAccessibilityIfNeeded()
         persistConfiguration()
     }
 
@@ -293,6 +363,138 @@ final class AppState: ObservableObject {
             }
         } catch {
             appendSystemLog(title: "Launch at login", details: error.localizedDescription)
+        }
+    }
+
+    private func promptForAccessibilityIfNeeded() {
+        guard config.bindings.contains(where: { $0.isEnabled && $0.action.kind == .middleClick }),
+              !accessibilityAccessGranted,
+              !hasPromptedForAccessibilityThisSession else {
+            return
+        }
+
+        hasPromptedForAccessibilityThisSession = true
+        refreshAccessibilityPermissionStatus(prompt: true)
+    }
+
+    static func resolveGestureFallback(
+        rawEvent: GestureEvent,
+        previousEvent: GestureEvent?,
+        enabledGestures: Set<GestureID>,
+        tapSensitivity: Double = 1.0
+    ) -> GestureEvent {
+        let hasOnlyThreeFingerTapBinding = hasExclusiveThreeFingerTapBinding(enabledGestures)
+        let normalizedTapSensitivity = min(max(tapSensitivity, 0.75), 1.5)
+
+        if hasOnlyThreeFingerTapBinding,
+           isThreeFingerSwipe(rawEvent.gesture),
+           rawEvent.metrics.durationMs <= GestureThresholds.threeFingerTapFallbackMaxDurationMs * normalizedTapSensitivity {
+            return GestureEvent(
+                gesture: .threeFingerTap,
+                deviceID: rawEvent.deviceID,
+                timestamp: rawEvent.timestamp,
+                metrics: RecognitionMetrics(
+                    fingerCount: 3,
+                    durationMs: rawEvent.metrics.durationMs,
+                    distance: min(rawEvent.metrics.distance, GestureThresholds.tapMaxTravel),
+                    velocity: rawEvent.metrics.velocity,
+                    confidence: 0.6
+                )
+            )
+        }
+
+        guard rawEvent.gesture == .twoFingerTap,
+              hasOnlyThreeFingerTapBinding,
+              let previousEvent,
+              previousEvent.deviceID == rawEvent.deviceID,
+              isThreeFingerSwipe(previousEvent.gesture),
+              rawEvent.timestamp.timeIntervalSince(previousEvent.timestamp) * 1_000 <= GestureThresholds.threeFingerTapSequenceFallbackWindowMs else {
+            return rawEvent
+        }
+
+        return GestureEvent(
+            gesture: .threeFingerTap,
+            deviceID: rawEvent.deviceID,
+            timestamp: rawEvent.timestamp,
+            metrics: RecognitionMetrics(
+                fingerCount: 3,
+                durationMs: previousEvent.metrics.durationMs,
+                distance: min(previousEvent.metrics.distance, GestureThresholds.tapMaxTravel),
+                velocity: previousEvent.metrics.velocity,
+                confidence: previousEvent.metrics.durationMs <= GestureThresholds.tapMaxDurationMs ? 0.7 : 0.6
+            )
+        )
+    }
+
+    private static func hasExclusiveThreeFingerTapBinding(_ enabledGestures: Set<GestureID>) -> Bool {
+        enabledGestures.contains(.threeFingerTap) &&
+        !enabledGestures.contains(.twoFingerTap) &&
+        !enabledGestures.contains(.threeFingerSwipeLeft) &&
+        !enabledGestures.contains(.threeFingerSwipeRight) &&
+        !enabledGestures.contains(.threeFingerSwipeUp) &&
+        !enabledGestures.contains(.threeFingerSwipeDown)
+    }
+
+    private static func isThreeFingerSwipe(_ gesture: GestureID) -> Bool {
+        switch gesture {
+        case .threeFingerSwipeLeft, .threeFingerSwipeRight, .threeFingerSwipeUp, .threeFingerSwipeDown:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private static func recognitionSource(rawEvent: GestureEvent, resolvedEvent: GestureEvent) -> String {
+        guard rawEvent.gesture != resolvedEvent.gesture else {
+            return "direct"
+        }
+
+        switch rawEvent.gesture {
+        case .twoFingerTap:
+            return "fallback-sequence"
+        case .threeFingerSwipeLeft, .threeFingerSwipeRight, .threeFingerSwipeUp, .threeFingerSwipeDown:
+            return "fallback-swipe"
+        default:
+            return "fallback"
+        }
+    }
+
+    private func gestureLogDetails(for event: GestureEvent, recognitionSource: String) -> String {
+        var details = "Device \(event.deviceID), duration \(Int(event.metrics.durationMs)) ms, confidence \(String(format: "%.2f", event.metrics.confidence))."
+        if config.gestureDiagnosticsEnabled {
+            details += " Source \(recognitionSource)."
+        }
+        return details
+    }
+
+    private func refreshAccessibilityPermissionStatus(prompt: Bool = false) {
+        let trusted: Bool
+        if prompt {
+            let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+            trusted = AXIsProcessTrustedWithOptions(options)
+        } else {
+            trusted = AXIsProcessTrusted()
+        }
+
+        let previousValue = accessibilityAccessGranted
+        accessibilityAccessGranted = trusted
+
+        if !trusted && prompt {
+            statusMessage = "Accessibility access is required for synthetic middle click. Approve Trackpad Commander in Privacy & Security > Accessibility."
+            if !previousValue {
+                appendSystemLog(
+                    title: "Accessibility permission required",
+                    details: "Middle click injection requires Accessibility access. macOS should show the consent flow."
+                )
+            }
+            hasPromptedForAccessibilityThisSession = true
+        } else if trusted && !previousValue {
+            statusMessage = "Accessibility access granted."
+            hasPromptedForAccessibilityThisSession = false
+            appendSystemLog(
+                title: "Accessibility permission granted",
+                details: "Synthetic input actions are now allowed."
+            )
         }
     }
 
